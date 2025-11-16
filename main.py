@@ -12,13 +12,14 @@ import argparse
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument
 arg_parser.add_argument('--dataset', default='mnist', help='data set to train on, cifar10 or mnist')
+arg_parser.add_argument('--code_location',default='.', help='where your code is stored')
 arg_parser.add_argument('--model_type', default='single_level', help='model type, single_level or hierarchical')
 arg_parser.add_argument('--inference_type', default='iterative', help='inference type, standard or iterative')
 arg_parser.add_argument('--data_path', default='', help='path to data directory root')
 arg_parser.add_argument('--log_path', default='', help='path to log directory root')
 args = arg_parser.parse_args()
 
-path_to_config = os.path.join(os.getcwd(), 'cfg', args.dataset, args.model_type, args.inference_type)
+path_to_config = os.path.join(args.code_location, 'cfg', args.dataset, args.model_type, args.inference_type)
 sys.path.insert(0, path_to_config)
 from config import train_config, arch
 
