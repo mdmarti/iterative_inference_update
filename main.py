@@ -31,8 +31,8 @@ log_root = train_config['log_root']
 log_path, log_dir = init_log(log_root, train_config)
 print('Experiment: ' + log_dir)
 
-global vis
-vis, handle_dict = init_plot(train_config, arch, env=log_dir)
+#global vis
+#vis, handle_dict = init_plot(train_config, arch, env=log_dir)
 
 # load data, labels
 data_path = train_config['data_path']
