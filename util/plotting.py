@@ -302,13 +302,14 @@ def plot_output_variance(cond_like, epoch, handle_dict):
 
 def plot_train(func):
     """Wrapper around training function to plot the outputs in corresponding visdom windows."""
-    def plotting_func(model, train_config, arch, data_loader, epoch, handle_dict, optimizers):
+    def plotting_func(model, train_config, arch, data_loader, epoch, handle_dict, optimizers,vis=False):
         output_dict = func(model, train_config, arch, data_loader, epoch, optimizers)
         metrics = [output_dict['avg_elbo'], output_dict['avg_cond_log_like'], output_dict['avg_kl']]
-        plot_average_metrics(metrics, epoch, handle_dict, 'Train')
-        plot_param_grad_mags(output_dict['avg_param_grad_mags'], epoch, handle_dict)
-        plot_state_grad_mags(output_dict['avg_state_grad_mags'], epoch, handle_dict)
-        plot_opt_lr(optimizers, epoch, handle_dict)
+        if vis:
+            plot_average_metrics(metrics, epoch, handle_dict, 'Train')
+            plot_param_grad_mags(output_dict['avg_param_grad_mags'], epoch, handle_dict)
+            plot_state_grad_mags(output_dict['avg_state_grad_mags'], epoch, handle_dict)
+            plot_opt_lr(optimizers, epoch, handle_dict)
         return output_dict, handle_dict
     return plotting_func
 
@@ -324,13 +325,14 @@ def plot_model_vis(func):
         for level in range(len(output_dict['total_kl'])):
             average_kl[level] = np.mean(output_dict['total_kl'][level][:, -1], axis=0)
         averages = average_elbo, average_cond_log_like, average_kl
-        plot_average_metrics(averages, epoch, handle_dict, 'Validation')
-
-        # plot average improvement on metrics over iterations
-        if train_config['n_iterations'] > 1:
-            plot_average_improvement([output_dict['total_elbo'], output_dict['total_cond_log_like'], output_dict['total_kl']], epoch, handle_dict)
-
+        
         if vis:
+            plot_average_metrics(averages, epoch, handle_dict, 'Validation')
+
+            # plot average improvement on metrics over iterations
+            if train_config['n_iterations'] > 1:
+                plot_average_improvement([output_dict['total_elbo'], output_dict['total_cond_log_like'], output_dict['total_kl']], epoch, handle_dict)
+
             # plot reconstructions, samples
             batch_size = train_config['batch_size']
             data_shape = list(next(iter(data_loader))[0].size())[1:]
