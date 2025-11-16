@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from torch.nn import init, Parameter
 from torch.autograd import Variable
-from distributions import DiagonalGaussian, PointEstimate
+from lib.distributions import DiagonalGaussian, PointEstimate
 
 
 class Dense(nn.Module):

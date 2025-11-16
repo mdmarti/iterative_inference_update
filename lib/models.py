@@ -4,8 +4,8 @@ import torch.optim as opt
 import numpy as np
 
 from util.logs import load_model_checkpoint
-from distributions import DiagonalGaussian, Bernoulli, Multinomial
-from modules import Dense, MultiLayerPerceptron, DenseGaussianVariable, DenseLatentLevel, RecurrentLatentLevel
+from lib.distributions import DiagonalGaussian, Bernoulli, Multinomial
+from lib.modules import Dense, MultiLayerPerceptron, DenseGaussianVariable, DenseLatentLevel, RecurrentLatentLevel
 
 
 def get_model(train_config, arch, data_loader):

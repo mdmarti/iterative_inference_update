@@ -37,13 +37,13 @@ def load_data(dataset, data_path):
 
     assert os.path.exists(data_path), 'Data path not found. Please specify a valid path.'
 
-    print 'Loading data...'
+    print('Loading data...')
     train = val = None
     train_labels = val_labels = None
     label_names = None
 
     def unpickle(file_name):
-        import cPickle
+        import _pickle as cPickle
         fo = open(file_name, 'rb')
         result = cPickle.load(fo)
         fo.close()
@@ -68,7 +68,7 @@ def load_data(dataset, data_path):
             return labels
 
         if not os.path.exists(os.path.join(data_path, 'MNIST', 'train-images-idx3-ubyte')):
-            print 'Downloading MNIST training images...'
+            print('Downloading MNIST training images...')
             urllib.urlretrieve('http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz', os.path.join(data_path, 'MNIST', 'train-images-idx3-ubyte.gz'))
             with gzip.open(os.path.join(data_path, 'MNIST', 'train-images-idx3-ubyte.gz'), 'rb') as f:
                 file_content = f.read()
@@ -78,7 +78,7 @@ def load_data(dataset, data_path):
         train = load_mnist_images_np(os.path.join(data_path, 'MNIST', 'train-images-idx3-ubyte'))
 
         if not os.path.exists(os.path.join(data_path, 'MNIST', 'train-labels-idx1-ubyte')):
-            print 'Downloading MNIST training labels...'
+            print('Downloading MNIST training labels...')
             urllib.urlretrieve('http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz', os.path.join(data_path, 'MNIST', 'train-labels-idx1-ubyte.gz'))
             with gzip.open(os.path.join(data_path, 'MNIST', 'train-labels-idx1-ubyte.gz'), 'rb') as f:
                 file_content = f.read()
@@ -88,7 +88,7 @@ def load_data(dataset, data_path):
         train_labels = load_mnist_labels_np(os.path.join(data_path, 'MNIST', 'train-labels-idx1-ubyte'))
 
         if not os.path.exists(os.path.join(data_path, 'MNIST', 't10k-images-idx3-ubyte')):
-            print 'Downloading MNIST validation data...'
+            print('Downloading MNIST validation data...')
             urllib.urlretrieve('http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz', os.path.join(data_path, 'MNIST', 't10k-images-idx3-ubyte.gz'))
             with gzip.open(os.path.join(data_path, 'MNIST', 't10k-images-idx3-ubyte.gz'), 'rb') as f:
                 file_content = f.read()
@@ -98,7 +98,7 @@ def load_data(dataset, data_path):
         val = load_mnist_images_np(os.path.join(data_path, 'MNIST', 't10k-images-idx3-ubyte'))
 
         if not os.path.exists(os.path.join(data_path, 'MNIST', 't10k-labels-idx1-ubyte')):
-            print 'Downloading MNIST validation labels...'
+            print('Downloading MNIST validation labels...')
             urllib.urlretrieve('http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz', os.path.join(data_path, 'MNIST', 't10k-labels-idx1-ubyte.gz'))
             with gzip.open(os.path.join(data_path, 'MNIST', 't10k-labels-idx1-ubyte.gz'), 'rb') as f:
                 file_content = f.read()
@@ -114,7 +114,7 @@ def load_data(dataset, data_path):
             os.makedirs(os.path.join(data_path, 'static_binarized_MNIST'))
 
         if not os.path.exists(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_train.amat')):
-            print 'Downloading binarized MNIST training data...'
+            print('Downloading binarized MNIST training data...')
             urllib.urlretrieve('http://www.cs.toronto.edu/~larocheh/public/datasets/binarized_mnist/binarized_mnist_train.amat', os.path.join(data_path,'static_binarized_MNIST', 'binarized_mnist_train.amat'))
 
         with open(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_train.amat')) as f:
@@ -122,7 +122,7 @@ def load_data(dataset, data_path):
         _train1 = np.array([[int(i) for i in line.split()] for line in lines]).astype('float32')
 
         if not os.path.exists(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_valid.amat')):
-            print 'Downloading binarized MNIST validation data...'
+            print('Downloading binarized MNIST validation data...')
             urllib.urlretrieve('http://www.cs.toronto.edu/~larocheh/public/datasets/binarized_mnist/binarized_mnist_valid.amat', os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_valid.amat'))
 
         with open(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_valid.amat')) as f:
@@ -135,7 +135,7 @@ def load_data(dataset, data_path):
         train_labels = np.zeros((train.shape[0]))
 
         if not os.path.exists(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_test.amat')):
-            print 'Downloading binarized MNIST testing data...'
+            print('Downloading binarized MNIST testing data...')
             urllib.urlretrieve('http://www.cs.toronto.edu/~larocheh/public/datasets/binarized_mnist/binarized_mnist_test.amat', os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_test.amat'))
 
         with open(os.path.join(data_path, 'static_binarized_MNIST', 'binarized_mnist_test.amat')) as f:
@@ -152,7 +152,7 @@ def load_data(dataset, data_path):
             os.makedirs(os.path.join(data_path, 'omniglot'))
 
         if not os.path.exists(os.path.join(data_path, 'omniglot', 'chardata.mat')):
-            print 'Downloading Omniglot images_background.zip...'
+            print('Downloading Omniglot images_background.zip...')
             urllib.urlretrieve('https://github.com/yburda/iwae/raw/master/datasets/OMNIGLOT/chardata.mat', os.path.join(data_path, 'omniglot', 'chardata.mat'))
         data = loadmat(os.path.join(data_path, 'omniglot', 'chardata.mat'))
         train = 255. * data['data'].swapaxes(0,1).reshape((-1, 28, 28, 1)).astype('float32')
@@ -164,7 +164,7 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'caltech_101_silhouettes')):
             os.makedirs(os.path.join(data_path, 'caltech_101_silhouettes'))
         if not os.path.exists(os.path.join(data_path, 'caltech_101_silhouettes', 'caltech101_silhouettes_28_split1.mat')):
-            print 'Downloading Caltech 101 Silhouettes...'
+            print('Downloading Caltech 101 Silhouettes...')
             urllib.urlretrieve('https://people.cs.umass.edu/~marlin/data/caltech101_silhouettes_28_split1.mat', os.path.join(data_path, 'caltech_101_silhouettes', 'caltech101_silhouettes_28_split1.mat'))
         data = loadmat(os.path.join(data_path, 'caltech_101_silhouettes', 'caltech101_silhouettes_28_split1.mat'))
         train = np.concatenate([data['train_data'], data['val_data']], axis=0).astype('float32').reshape((-1, 28, 28))
@@ -178,9 +178,9 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'CIFAR_10')):
             os.makedirs(os.path.join(data_path, 'CIFAR_10'))
         if not os.path.exists(os.path.join(data_path, 'CIFAR_10', 'cifar-10-batches-py')):
-            print 'Downloading CIFAR_10...'
+            print('Downloading CIFAR_10...')
             urllib.urlretrieve('https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz', os.path.join(data_path, 'CIFAR_10', 'cifar-10-python.tar.gz'))
-            print 'Extracting CIFAR_10 tar file...'
+            print('Extracting CIFAR_10 tar file...')
             tar = tarfile.open(os.path.join(data_path, 'CIFAR_10', 'cifar-10-python.tar.gz'))
             tar.extractall(os.path.join(data_path, 'CIFAR_10'))
             tar.close()
@@ -197,9 +197,9 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'CIFAR_100')):
             os.makedirs(os.path.join(data_path, 'CIFAR_100'))
         if not os.path.exists(os.path.join(data_path, 'CIFAR_100', 'cifar-100-python')):
-            print 'Downloading CIFAR_100...'
+            print('Downloading CIFAR_100...')
             urllib.urlretrieve('https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz', os.path.join(data_path, 'CIFAR_100', 'cifar-100-python.tar.gz'))
-            print 'Extracting CIFAR_100 tar file...'
+            print('Extracting CIFAR_100 tar file...')
             tar = tarfile.open(os.path.join(data_path, 'CIFAR_100', 'cifar-100-python.tar.gz'))
             tar.extractall(os.path.join(data_path, 'CIFAR_100'))
             tar.close()
@@ -216,13 +216,13 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'SVHN')):
             os.makedirs(os.path.join(data_path, 'SVHN'))
         if not os.path.exists(os.path.join(data_path, 'SVHN','train_32x32.mat')):
-            print 'Downloading SVHN train...'
+            print('Downloading SVHN train...')
             urllib.urlretrieve('http://ufldl.stanford.edu/housenumbers/train_32x32.mat', os.path.join(data_path, 'SVHN', 'train_32x32.mat'))
         data_labels = loadmat(os.path.join(data_path, 'SVHN', 'train_32x32.mat'))
         train = data_labels['X'].swapaxes(2, 3).swapaxes(1, 2).swapaxes(0, 1).astype('float32')
         train_labels = data_labels['y'].reshape(-1).astype('float32')
         if not os.path.exists(os.path.join(data_path, 'SVHN', 'test_32x32.mat')):
-            print 'Downloading SVHN test...'
+            print('Downloading SVHN test...')
             urllib.urlretrieve('http://ufldl.stanford.edu/housenumbers/test_32x32.mat', os.path.join(data_path, 'SVHN', 'test_32x32.mat'))
         data_labels = loadmat(os.path.join(data_path, 'SVHN', 'test_32x32.mat'))
         val = data_labels['X'].swapaxes(2, 3).swapaxes(1, 2).swapaxes(0, 1).astype('float32')
@@ -234,14 +234,14 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'imagenet_32')):
             os.makedirs(os.path.join(data_path, 'imagenet_32'))
         if not os.path.exists(os.path.join(data_path, 'imagenet_32', 'train_32x32')):
-            print 'Downloading ImageNet 32 x 32 train data...'
+            print('Downloading ImageNet 32 x 32 train data...')
             urllib.urlretrieve('http://image-net.org/small/train_32x32.tar', os.path.join(data_path, 'imagenet_32', 'train_32x32.tar'))
             tar = tarfile.open(os.path.join(data_path, 'imagenet_32', 'train_32x32.tar'))
-            print 'Extracting ImageNet 32 x 32 tar file...'
+            print('Extracting ImageNet 32 x 32 tar file...')
             tar.extractall(os.path.join(data_path, 'imagenet_32'))
             tar.close()
             os.remove(os.path.join(data_path, 'imagenet_32', 'train_32x32.tar'))
-            print 'Moving images into directory...'
+            print('Moving images into directory...')
             os.makedirs(os.path.join(data_path, 'imagenet_32', 'train_32x32', 'images'))
             for _, _, files in os.walk(os.path.join(data_path, 'imagenet_32', 'train_32x32')):
                 root = os.path.join(data_path, 'imagenet_32', 'train_32x32')
@@ -251,14 +251,14 @@ def load_data(dataset, data_path):
         train = os.path.join(data_path, 'imagenet_32', 'train_32x32')
 
         if not os.path.exists(os.path.join(data_path, 'imagenet_32', 'valid_32x32')):
-            print 'Downloading ImageNet 32 x 32 validation data...'
+            print('Downloading ImageNet 32 x 32 validation data...')
             urllib.urlretrieve('http://image-net.org/small/valid_32x32.tar', os.path.join(data_path, 'imagenet_32', 'valid_32x32.tar'))
             tar = tarfile.open(os.path.join(data_path, 'imagenet_32', 'valid_32x32.tar'))
-            print 'Extracting ImageNet 32 x 32 tar file...'
+            print('Extracting ImageNet 32 x 32 tar file...')
             tar.extractall(os.path.join(data_path, 'imagenet_32'))
             tar.close()
             os.remove(os.path.join(data_path, 'imagenet_32', 'valid_32x32.tar'))
-            print 'Moving images into directory...'
+            print('Moving images into directory...')
             os.makedirs(os.path.join(data_path, 'imagenet_32', 'valid_32x32', 'images'))
             for _, _, files in os.walk(os.path.join(data_path, 'imagenet_32', 'valid_32x32')):
                 root = os.path.join(data_path, 'imagenet_32', 'valid_32x32')
@@ -271,14 +271,14 @@ def load_data(dataset, data_path):
         if not os.path.exists(os.path.join(data_path, 'imagenet_64')):
             os.makedirs(os.path.join(data_path, 'imagenet_64'))
         if not os.path.exists(os.path.join(data_path, 'imagenet_64', 'train_64x64')):
-            print 'Downloading ImageNet 64 x 64 train data...'
+            print('Downloading ImageNet 64 x 64 train data...')
             urllib.urlretrieve('http://image-net.org/small/train_64x64.tar', os.path.join(data_path, 'imagenet_64', 'train_64x64.tar'))
             tar = tarfile.open(os.path.join(data_path, 'imagenet_64', 'train_64x64.tar'))
-            print 'Extracting ImageNet 64 x 64 tar file...'
+            print('Extracting ImageNet 64 x 64 tar file...')
             tar.extractall(os.path.join(data_path, 'imagenet_64'))
             tar.close()
             os.remove(os.path.join(data_path, 'imagenet_64', 'train_64x64.tar'))
-            print 'Moving images into directory...'
+            print('Moving images into directory...')
             os.makedirs(os.path.join(data_path, 'imagenet_64', 'train_64x64', 'images'))
             for _, _, files in os.walk(os.path.join(data_path, 'imagenet_64', 'train_64x64')):
                 root = os.path.join(data_path, 'imagenet_64', 'train_64x64')
