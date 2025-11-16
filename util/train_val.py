@@ -6,8 +6,8 @@ from random import shuffle
 
 # from cfg.config import train_config, arch
 
-from logs import log_train, log_vis
-from plotting import plot_images, plot_line, plot_train, plot_model_vis
+from util.logs import log_train, log_vis
+from util.plotting import plot_images, plot_line, plot_train, plot_model_vis
 
 
 def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, train_enc=True, train_dec=True):

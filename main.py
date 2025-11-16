@@ -20,7 +20,7 @@ args = arg_parser.parse_args()
 
 path_to_config = os.path.join(os.getcwd(), 'cfg', args.dataset, args.model_type, args.inference_type)
 sys.path.insert(0, path_to_config)
-from config import train_config, arch
+from cfg.config import train_config, arch
 
 train_config['data_path'] = args.data_path
 train_config['log_root'] = args.log_path
@@ -35,9 +35,13 @@ vis, handle_dict = init_plot(train_config, arch, env=log_dir)
 
 # load data, labels
 data_path = train_config['data_path']
-if 'celeba' in train_config['dataset'].lower() or 'mnist' in train_config['dataset'].lower() or 'finch' in train_config['dataset'].lower():
+if ('celeba' in train_config['dataset'].lower()) or ('mnist' in train_config['dataset'].lower()) or ('finch' in train_config['dataset'].lower()):
+    print('loading using my data')
     train_loader,val_loader,label_names = load_my_data(train_config['dataset'],data_path,train_config['batch_size'],cuda_device= train_config['cuda_device'])
 else:
+    print("tried to load from somewhere else!")
+    print(train_config['dataset'])
+    assert False
     train_loader, val_loader, label_names = load_data(train_config['dataset'], data_path, train_config['batch_size'],
                                                     cuda_device=train_config['cuda_device'])
 

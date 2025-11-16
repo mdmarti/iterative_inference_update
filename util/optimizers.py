@@ -1,6 +1,6 @@
 import torch.optim as opt
 from torch.optim.lr_scheduler import ExponentialLR
-from logs import load_opt_checkpoint
+from util.logs import load_opt_checkpoint
 
 
 def set_gpu_recursive(var, gpu_id):

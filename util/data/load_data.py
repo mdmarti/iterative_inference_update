@@ -10,8 +10,8 @@ import torch
 import glob
 from sklearn.model_selection import train_test_split
 
-from load_torch_data import load_torch_data
-from troch.utils.data import Dataset, DataLoader
+from util.data.load_torch_data import load_torch_data
+from torch.utils.data import Dataset, DataLoader
 import h5py
 from torchvision import transforms,datasets
 

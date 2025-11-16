@@ -3,7 +3,7 @@ import scipy
 import torch
 import torchvision
 from torch.utils.data import TensorDataset, DataLoader
-from sparse_dataset import SparseDataset
+from util.data.sparse_dataset import SparseDataset
 
 
 def load_torch_data(load_data_func):
