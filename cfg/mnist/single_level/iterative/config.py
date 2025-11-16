@@ -4,7 +4,7 @@ train_config = {
     'output_distribution': 'bernoulli',
     'batch_size': 64,
     'n_samples': 10,
-    'n_iterations': 5,
+    'n_iterations': 300,
     'encoder_optimizer': 'adam',
     'decoder_optimizer': 'adam',
     'encoder_learning_rate': 0.0002,
@@ -37,7 +37,7 @@ arch = {
     'learn_top_prior': False,
     'top_size': 1,
 
-    'n_latent': [64],
+    'n_latent': [2],
 
     'n_det_enc': [0],
     'n_det_dec': [0],
