@@ -91,9 +91,14 @@ class CelebADsetIms(Dataset):
         return (self.ims[index],[])
 
 
-def load_my_data(dataset,datapath,batch_size,device):
+def load_my_data(dataset,datapath,batch_size,cuda_device):
+
+    
 
     n_workers = len(os.sched_getaffinity(0))
+
+    kwargs = {'num_workers': n_workers, 'pin_memory': True} if cuda_device is not None else {}
+    kwargs['drop_last'] = True
 
     label_names = None
     if 'finch' in dataset.lower():
@@ -123,8 +128,8 @@ def load_my_data(dataset,datapath,batch_size,device):
         label_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 
-    train_loader = DataLoader(train_data,num_workers=n_workers,shuffle=True,batch_size=batch_size)
-    val_loader = DataLoader(val_data,num_workers=n_workers,shuffle=False,batch_size=batch_size)
+    train_loader = DataLoader(train_data,shuffle=True,batch_size=batch_size,**kwargs)
+    val_loader = DataLoader(val_data,shuffle=False,batch_size=batch_size,**kwargs)
 
     return train_loader,val_loader,label_names
 
