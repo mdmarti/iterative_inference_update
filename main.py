@@ -53,12 +53,11 @@ model = get_model(train_config, arch, train_loader)
 # get optimizers
 (enc_opt, enc_scheduler), (dec_opt, dec_scheduler), start_epoch = get_optimizers(train_config, arch, model)
 
-for epoch in range(start_epoch+1, 2000):
-    print('Epoch: ' + str(epoch+1))
-    # train
+for epoch in range(start_epoch+1,5):
+
     tic = time.time()
     model.train()
-    train(model, train_config, arch, train_loader, epoch+1, handle_dict, (enc_opt, dec_opt))
+    train(model, train_config, arch, train_loader, epoch+1, (enc_opt, dec_opt))
     toc = time.time()
     print('Training Time: ' + str(toc - tic))
     # validation
@@ -71,7 +70,7 @@ for epoch in range(start_epoch+1, 2000):
     if epoch % train_config['eval_iter'] == train_config['eval_iter']-1:
         eval = True
     model.eval()
-    _, averages, _ = run(model, train_config, arch, val_loader, epoch+1, handle_dict, vis=visualize, eval=eval, label_names=label_names)
+    _, averages, _ = run(model, train_config, arch, val_loader, epoch+1, vis=visualize, eval=eval, label_names=label_names)
     toc = time.time()
     print('Validation Time: ' + str(toc - tic))
     print('ELBO: ' + str(averages[0]))

@@ -33,9 +33,14 @@ def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, t
     approx_post_grads = np.zeros((n_iterations + 1, len(model.levels), 2))
     for level_num, level in enumerate(model.levels):
         grads = level.state_gradients()
-        approx_post_grads[0, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()[0]
+        #print(len(grads))
+        #for grad in grads:
+        #    print(grad.shape)
+        #print(level_num)
+        #print(grads[0].abs().mean(dim=0,keepdims=True).data.cpu().numpy()[0])
+        approx_post_grads[0, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()
         if len(grads) > 1:
-            approx_post_grads[0, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()[0]
+            approx_post_grads[0, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()
 
     model.not_trainable_state()
     # inference iterations
@@ -48,9 +53,9 @@ def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, t
 
         for level_num, level in enumerate(model.levels):
             grads = level.state_gradients()
-            approx_post_grads[it+1, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()[0]
+            approx_post_grads[it+1, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()
             if len(grads) > 1:
-                approx_post_grads[it+1, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()[0]
+                approx_post_grads[it+1, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()
 
         if not train_config['average_gradient'] or arch['encoder_type'] in ['em', 'EM']:
             if train_enc:
@@ -67,9 +72,9 @@ def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, t
 
     for level_num, level in enumerate(model.levels):
         grads = level.state_gradients()
-        approx_post_grads[-1, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()[0]
+        approx_post_grads[-1, level_num, 0] = grads[0].abs().mean().data.cpu().numpy()
         if len(grads) > 1:
-            approx_post_grads[-1, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()[0]
+            approx_post_grads[-1, level_num, 1] = grads[1].abs().mean().data.cpu().numpy()
 
     output_dict['state_grad_mags'] = approx_post_grads
 
@@ -84,7 +89,7 @@ def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, t
         num_params = 1
         for param in params:
             if param.grad is not None:
-                grad_mag += param.grad.abs().sum().data.cpu().numpy()[0]
+                grad_mag += param.grad.abs().sum().data.cpu().numpy()
                 num_params += param.grad.view(-1).size()[0]
         return grad_mag / num_params
 
@@ -103,10 +108,10 @@ def train_on_batch(model, batch, n_iterations, optimizers, train_config, arch, t
     if train_dec:
         dec_opt.step()
 
-    output_dict['elbo'] = elbo.data.cpu().numpy()[0]
-    output_dict['cond_log_like'] = cond_log_like.data.cpu().numpy()[0]
+    output_dict['elbo'] = elbo.data.cpu().numpy()
+    output_dict['cond_log_like'] = cond_log_like.data.cpu().numpy()
     for level in range(len(kl)):
-        kl[level] = kl[level].data.cpu().numpy()[0]
+        kl[level] = kl[level].data.cpu().numpy()
     output_dict['kl'] = kl
 
     return output_dict
@@ -255,8 +260,8 @@ def em_on_batch(model, batch, n_iterations, opt):
     return total_elbo
 
 
-@plot_model_vis
-@log_vis
+#@plot_model_vis
+#@log_vis
 def run(model, train_config, arch, data_loader, vis=False, eval=False):
     """Runs the model on a set of data."""
 
@@ -410,8 +415,8 @@ def run(model, train_config, arch, data_loader, vis=False, eval=False):
     return output_dict
 
 
-@plot_train
-@log_train
+#@plot_train
+#@log_train
 def train(model, train_config, arch, data_loader, epoch, optimizers):
 
     output_dict = dict()
