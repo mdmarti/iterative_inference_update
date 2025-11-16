@@ -313,9 +313,9 @@ def run(model, train_config, arch, data_loader, vis=False, eval=False):
                 total_prior[level][data_index:data_index + batch_size] = batch_output['prior'][level]
 
         if eval:
-            print 'Running Eval...'
+            print('Running Eval...')
             total_log_like[data_index:data_index + batch_size] = eval_on_batch(model, batch, 5000)
-            print total_log_like[data_index]
+            print(total_log_like[data_index])
 
     samples = None
     optimization_surface = None
@@ -326,7 +326,7 @@ def run(model, train_config, arch, data_loader, vis=False, eval=False):
 
         # visualize the latent optimization surface
         if arch['n_latent'][0] == 2 and len(arch['n_latent']) == 1:
-            print 'Visualizing latent space...'
+            print('Visualizing latent space...')
             optimization_surface = dict()
             optimization_surface['elbo'] = np.zeros((batch_size, 200, 200))
             optimization_surface['kl'] = np.zeros((batch_size, 200, 200))
@@ -374,7 +374,7 @@ def run(model, train_config, arch, data_loader, vis=False, eval=False):
 
         # run expectation steps on each batch
         for batch_index, (batch, labels) in enumerate(data_loader):
-            print 'Batch: ' + str(batch_index)
+            print('Batch: ' + str(batch_index))
             batch = Variable(batch)
             if train_config['cuda_device'] is not None:
                 batch = batch.cuda(train_config['cuda_device'])

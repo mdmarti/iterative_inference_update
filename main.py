@@ -1,5 +1,5 @@
 from lib.models import get_model
-from util.data.load_data import load_data
+from util.data.load_data import load_data,load_my_data
 from util.optimizers import get_optimizers
 from util.train_val import train, run
 from util.plotting import init_plot, save_env
@@ -35,8 +35,11 @@ vis, handle_dict = init_plot(train_config, arch, env=log_dir)
 
 # load data, labels
 data_path = train_config['data_path']
-train_loader, val_loader, label_names = load_data(train_config['dataset'], data_path, train_config['batch_size'],
-                                                  cuda_device=train_config['cuda_device'])
+if 'celeba' in train_config['dataset'].lower() or 'mnist' in train_config['dataset'].lower() or 'finch' in train_config['dataset'].lower():
+    train_loader,val_loader,label_names = load_my_data(train_config['dataset'],data_path,train_config['batch_size'],cuda_device= train_config['cuda_device'])
+else:
+    train_loader, val_loader, label_names = load_data(train_config['dataset'], data_path, train_config['batch_size'],
+                                                    cuda_device=train_config['cuda_device'])
 
 # construct model
 model = get_model(train_config, arch, train_loader)
@@ -65,7 +68,7 @@ for epoch in range(start_epoch+1, 2000):
     _, averages, _ = run(model, train_config, arch, val_loader, epoch+1, handle_dict, vis=visualize, eval=eval, label_names=label_names)
     toc = time.time()
     print('Validation Time: ' + str(toc - tic))
-    prin('ELBO: ' + str(averages[0]))
+    print('ELBO: ' + str(averages[0]))
     save_env()
     enc_scheduler.step()
     dec_scheduler.step()

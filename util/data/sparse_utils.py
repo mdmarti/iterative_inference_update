@@ -80,7 +80,7 @@ def _testSparse():
     result = 0.
     for init,final in zip([csc_1,csr_1,csc_2,csr_2],[l_csc_1,l_csr_1,l_csc_2,l_csr_2]):
         result += (init-final).sum() +(init.toarray()-final.toarray()).sum()
-    print 'Diff b/w saved vs loaded matrices',result
+    print('Diff b/w saved vs loaded matrices',result)
     os.unlink(fname)
 
 def readSparseFile(fname, MAXDIM, zeroIndexed=True):
@@ -107,7 +107,7 @@ def readSparseFile(fname, MAXDIM, zeroIndexed=True):
     matrix = coo_matrix((val,(row,col)),shape=(idx+1,MAXDIM))
     val,row,col=None,None,None
     cmat   = matrix.tocsr()
-    print 'Time Taken: ',(time.time()-start)/60.,' minutes'
+    print('Time Taken: ',(time.time()-start)/60.,' minutes')
     return cmat
 
 if __name__=='__main__':

@@ -6,11 +6,127 @@ import zipfile
 import tarfile
 import numpy as np
 from scipy.io import loadmat
+import torch
+import glob
+from sklearn.model_selection import train_test_split
 
 from load_torch_data import load_torch_data
+from troch.utils.data import Dataset, DataLoader
+import h5py
+from torchvision import transforms,datasets
 
 # todo: add label names to omniglot
 # todo: add labels to static binarized MNIST, omniglot
+
+def load_segmented_sylls(bird_filepath,sylls,test_size=0.2,seed=92):
+
+    spec_files = []
+    syll_ids = []
+    for syll in sylls:
+        sub_path = os.path.join(bird_filepath,f'syll_specs_{syll}/*')
+        
+        syll_files = glob.glob(os.path.join(sub_path,'*.hdf5'))
+        spec_files += syll_files
+        syll_ids += [syll]*len(syll_files)
+        
+    train_files,test_files,train_ids,test_ids = train_test_split(spec_files,syll_ids,test_size=test_size,random_state=seed)
+    
+    return (train_files,test_files),(train_ids,test_ids)
+
+class bird_data(Dataset):
+
+    def __init__(self,filenames,syll_ids,specs_per_file=20,transform=transforms.ToTensor(),
+                 conditional=False,conditional_factor='fm'):
+
+
+        self.filenames=filenames
+        self.syll_ids = syll_ids
+        self.specs_per_file = specs_per_file
+        self.transform = transform
+        self.conditional=conditional
+        self.conditional_factor = conditional_factor
+
+    def __len__(self):
+        return len(self.filenames) * self.specs_per_file
+
+
+    def __getitem__(self,index):
+
+        load_index = index//self.specs_per_file
+        spec_index = index%self.specs_per_file
+        load_fn = self.filenames[load_index]
+        syll_id = self.syll_ids[load_index]
+        
+        with h5py.File(load_fn,'r',locking=False) as f:
+            spec = f['specs'][spec_index]
+
+            if self.conditional:
+                raise NotImplementedError
+        
+        
+        spec = self.transform(spec)
+
+        if self.conditional:
+            return (spec,None,syll_id)
+        return (spec,syll_id)
+    
+class CelebADsetIms(Dataset):
+
+    """
+    assumes that you're using data loaded directly in all at once,
+    rather than loading 1 image at a time
+    """
+
+    def __init__(self,ims):
+
+        self.ims = ims
+        self.len = ims.shape[0]
+    
+    def __len__(self):
+
+        return self.len
+
+    def __getitem__(self,index):
+
+        return (self.ims[index],[])
+
+
+def load_my_data(dataset,datapath,batch_size,device):
+
+    n_workers = len(os.sched_getaffinity(0))
+
+    label_names = None
+    if 'finch' in dataset.lower():
+        print("Loading finch")
+        (train_files,test_files),(train_ids,test_ids) = load_segmented_sylls(datapath,sylls=['A','B','C','D','D2','E'],seed=92)
+        train_data = bird_data(train_files,train_ids)
+        val_data = bird_data(test_files,test_ids)
+        label_names = ['A','B','C','D','D2','E']
+        
+    elif 'celeba' in dataset.lower():
+        print("Loading CelebA")
+        train = torch.load(os.path.join(datapath,'train_80x80.pt'))
+        val = torch.load(os.path.join(datapath,'test80x80.pt'))  
+
+        train_labels,val_labels = np.zeros((train.shape[0],)),np.zeros((val.shape[0],))
+        train_data = CelebADsetIms(train)
+        val_data = CelebADsetIms(val)
+
+    elif 'mnist' in dataset.lower():
+        print("loading mnist...")
+        transform = transforms.ToTensor()
+        train_data = datasets.MNIST(datapath, train=True, download=True, transform=transform)
+        #train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True,num_workers=n_workers)
+        val_data = datasets.MNIST(datapath, train=False, download=True, transform=transform)
+        train_labels=train_data.targets
+        val_labels = val_data.targets
+        label_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+
+    train_loader = DataLoader(train_data,num_workers=n_workers,shuffle=True,batch_size=batch_size)
+    val_loader = DataLoader(val_data,num_workers=n_workers,shuffle=False,batch_size=batch_size)
+
+    return train_loader,val_loader,label_names
 
 
 @load_torch_data
@@ -108,6 +224,9 @@ def load_data(dataset, data_path):
         val_labels = load_mnist_labels_np(os.path.join(data_path, 'MNIST', 't10k-labels-idx1-ubyte'))
 
         label_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+        #train_data = CelebADsetIms(train_ims)
+        #test_data = CelebADsetIms(test_ims)
 
     elif dataset in ['static_binarized_MNIST', 'static_binarized_mnist']:
         if not os.path.exists(os.path.join(data_path, 'static_binarized_MNIST')):
@@ -288,14 +407,14 @@ def load_data(dataset, data_path):
         train = os.path.join(data_path, 'imagenet_64', 'train_64x64')
 
         if not os.path.exists(os.path.join(data_path, 'imagenet_64', 'valid_64x64')):
-            print 'Downloading ImageNet 64 x 64 validation data...'
+            print('Downloading ImageNet 64 x 64 validation data...')
             urllib.urlretrieve('http://image-net.org/small/valid_64x64.tar', os.path.join(data_path, 'imagenet_64', 'valid_64x64.tar'))
             tar = tarfile.open(os.path.join(data_path, 'imagenet_64', 'valid_64x64.tar'))
-            print 'Extracting ImageNet 64 x 64 tar file...'
+            print('Extracting ImageNet 64 x 64 tar file...')
             tar.extractall(os.path.join(data_path, 'imagenet_64'))
             tar.close()
             os.remove(os.path.join(data_path, 'imagenet_64', 'valid_64x64.tar'))
-            print 'Moving images into directory...'
+            print('Moving images into directory...')
             os.makedirs(os.path.join(data_path, 'imagenet_64', 'valid_64x64', 'images'))
             for _, _, files in os.walk(os.path.join(data_path, 'imagenet_64', 'valid_64x64')):
                 root = os.path.join(data_path, 'imagenet_64', 'valid_64x64')
@@ -313,5 +432,5 @@ def load_data(dataset, data_path):
     else:
         raise Exception('Dataset ' + str(dataset) + ' not found.')
 
-    print 'Data loaded.'
+    print('Data loaded.')
     return (train, val), (train_labels, val_labels), label_names
