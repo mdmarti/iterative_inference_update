@@ -45,7 +45,7 @@ class Dense(nn.Module):
         if initialize == 'normal':
             init.normal(self.linear.weight)
         elif initialize == 'glorot_uniform':
-            init.xavier_uniform(self.linear.weight, gain=init_gain)
+            init.xavier_uniform_(self.linear.weight, gain=init_gain)
         elif initialize == 'glorot_normal':
             init.xavier_normal(self.linear.weight, gain=init_gain)
         elif initialize == 'kaiming_uniform':
@@ -61,9 +61,9 @@ class Dense(nn.Module):
 
         if batch_norm:
             init.normal(self.bn.weight, 1, 0.02)
-            init.constant(self.bn.bias, 0.)
+            init.constant_(self.bn.bias, 0.)
 
-        init.constant(self.linear.bias, 0.)
+        init.constant_(self.linear.bias, 0.)
 
     def random_re_init(self, re_init_fraction):
         pass
@@ -114,7 +114,7 @@ class Conv(nn.Module):
         if initialize == 'normal':
             init.normal(self.conv.weight)
         elif initialize == 'glorot_uniform':
-            init.xavier_uniform(self.conv.weight)
+            init.xavier_uniform_(self.conv.weight)
         elif initialize == 'glorot_normal':
             init.xavier_normal(self.conv.weight)
         elif initialize == 'kaiming_uniform':
@@ -129,10 +129,10 @@ class Conv(nn.Module):
             raise Exception('Parameter initialization ' + str(initialize) + ' not found.')
 
         if batch_norm:
-            init.constant(self.bn.weight, 1.)
-            init.constant(self.bn.bias, 0.)
+            init.constant_(self.bn.weight, 1.)
+            init.constant_(self.bn.bias, 0.)
 
-        init.constant(self.conv.bias, 0.)
+        init.constant_(self.conv.bias, 0.)
 
     def forward(self, input):
         output = self.conv(input)
@@ -646,7 +646,7 @@ class DenseGaussianVariable(object):
         if self.posterior_form == 'gaussian':
             grads += [self.posterior.log_var.grad.detach()]
         for grad in grads:
-            grad.volatile = False
+            grad.requires_grad = False
         return grads
 
 
