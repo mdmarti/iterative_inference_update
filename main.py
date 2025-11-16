@@ -21,7 +21,7 @@ args = arg_parser.parse_args()
 
 path_to_config = os.path.join(args.code_location, 'cfg', args.dataset, args.model_type, args.inference_type)
 sys.path.insert(0, path_to_config)
-from config import train_config, arch
+from cfg.mnist.single_level.iterative.config import train_config, arch
 
 train_config['data_path'] = args.data_path
 train_config['log_root'] = args.log_path
