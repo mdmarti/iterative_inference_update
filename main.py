@@ -81,6 +81,6 @@ for epoch in range(start_epoch+1,5):
     toc = time.time()
     print('Validation Time: ' + str(toc - tic))
     print('ELBO: ' + str(averages[0]))
-    save_env()
+    #save_env()
     enc_scheduler.step()
     dec_scheduler.step()
