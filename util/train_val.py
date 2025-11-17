@@ -140,6 +140,9 @@ def run_on_batch(model, batch, n_iterations, train_config, arch, vis=False):
     model.decode(generate=True)
     model.reset_state()
     elbo, cond_log_like, kl = model.losses(batch)
+    #print(cond_log_like.shape)
+    #print(batch.size())
+    #assert False
 
     total_elbo[:, 0] = elbo.data.cpu().numpy()
     total_cond_log_like[:, 0] = cond_log_like.data.cpu().numpy()
