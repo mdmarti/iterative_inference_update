@@ -24,7 +24,7 @@ def init_log(log_root, train_config):
     log_dir = strftime("%b_%d_%Y_%H_%M_%S") + '/'
     log_path = os.path.join(log_root, log_dir)
     os.makedirs(log_path)
-    os.system("rsync -au --include '*/' --include '*.py' --exclude '*' . " + log_path + "source")
+    #os.system("rsync -au --include '*/' --include '*.py' --exclude '*' . " + log_path + "source")
     os.makedirs(os.path.join(log_path, 'metrics'))
     os.makedirs(os.path.join(log_path, 'visualizations'))
     os.makedirs(os.path.join(log_path, 'checkpoints'))
