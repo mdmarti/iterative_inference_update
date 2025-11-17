@@ -8,6 +8,7 @@ import sys
 import os
 import time
 import argparse
+import numpy as np
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument
@@ -70,7 +71,13 @@ for epoch in range(start_epoch+1,5):
     if epoch % train_config['eval_iter'] == train_config['eval_iter']-1:
         eval = True
     model.eval()
-    _, averages, _ = run(model, train_config, arch, val_loader, vis=visualize, eval=eval)
+    output_dict = run(model, train_config, arch, val_loader, vis=visualize, eval=eval)
+    average_elbo = np.mean(output_dict['total_elbo'][:, -1], axis=0)
+    average_cond_log_like = np.mean(output_dict['total_cond_log_like'][:, -1], axis=0)
+    average_kl = [0. for _ in range(len(output_dict['total_kl']))]
+    for level in range(len(output_dict['total_kl'])):
+        average_kl[level] = np.mean(output_dict['total_kl'][level][:, -1], axis=0)
+    averages = average_elbo, average_cond_log_like, average_kl
     toc = time.time()
     print('Validation Time: ' + str(toc - tic))
     print('ELBO: ' + str(averages[0]))
