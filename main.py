@@ -25,7 +25,7 @@ from cfg.mnist.single_level.iterative.config import train_config, arch
 
 train_config['data_path'] = args.data_path
 train_config['log_root'] = args.log_path
-
+train_config['batch_size'] = 128
 
 log_root = train_config['log_root']
 log_path, log_dir = init_log(log_root, train_config)
@@ -70,7 +70,7 @@ for epoch in range(start_epoch+1,5):
     if epoch % train_config['eval_iter'] == train_config['eval_iter']-1:
         eval = True
     model.eval()
-    _, averages, _ = run(model, train_config, arch, val_loader, epoch+1, vis=visualize, eval=eval, label_names=label_names)
+    _, averages, _ = run(model, train_config, arch, val_loader, vis=visualize, eval=eval)
     toc = time.time()
     print('Validation Time: ' + str(toc - tic))
     print('ELBO: ' + str(averages[0]))
