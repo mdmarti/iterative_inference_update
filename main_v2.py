@@ -22,9 +22,9 @@ arg_parser.add_argument('--model_type', default='single_level', help='model type
 arg_parser.add_argument('--inference_type', default='iterative', help='inference type, standard or iterative')
 arg_parser.add_argument('--data_path', default='', help='path to data directory root')
 arg_parser.add_argument('--log_path', default='', help='path to log directory root')
-arg_parser.add_argument('--n_iterations',default=5,help='Number of gradient iterations per batch')
-arg_parser.add_argument('--n_models',default=5,help='Number of models to train')
-arg_parser.add_argument('--n_epochs',default=300,help='Number of epochs to train for')
+arg_parser.add_argument('--n_iterations',default=5,help='Number of gradient iterations per batch',type=int)
+arg_parser.add_argument('--n_models',default=5,help='Number of models to train',type=int)
+arg_parser.add_argument('--n_epochs',default=300,help='Number of epochs to train for',type=int)
 args = arg_parser.parse_args()
 
 path_to_config = os.path.join(args.code_location, 'cfg', args.dataset, args.model_type, args.inference_type)
