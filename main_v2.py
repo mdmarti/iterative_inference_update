@@ -12,6 +12,7 @@ import numpy as np
 import pickle
 import torch
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument
@@ -22,6 +23,8 @@ arg_parser.add_argument('--inference_type', default='iterative', help='inference
 arg_parser.add_argument('--data_path', default='', help='path to data directory root')
 arg_parser.add_argument('--log_path', default='', help='path to log directory root')
 arg_parser.add_argument('--n_iterations',default=5,help='Number of gradient iterations per batch')
+arg_parser.add_argument('--n_models',default=5,help='Number of models to train')
+arg_parser.add_argument('--n_epochs',default=300,help='Number of epochs to train for')
 args = arg_parser.parse_args()
 
 path_to_config = os.path.join(args.code_location, 'cfg', args.dataset, args.model_type, args.inference_type)
@@ -33,9 +36,7 @@ train_config['log_root'] = args.log_path
 train_config['batch_size'] = 128
 train_config['n_iterations'] = args.n_iterations
 
-log_root = train_config['log_root']
-log_path, log_dir = init_log(log_root, train_config)
-print('Experiment: ' + log_dir)
+
 
 #global vis
 #vis, handle_dict = init_plot(train_config, arch, env=log_dir)
@@ -55,10 +56,16 @@ else:
 
 # construct model
 train_config['n_samples']=1
-for n_iterations in [2,5,10,16]:
-    print(f'training using {n_iterations} iterations')
-    save_path = os.path.join(args.log_path,f'n_iterations_{n_iterations}_results.pkl')
-    train_config['n_iterations'] = n_iterations
+for model_num in range(args.n_models):
+
+    log_root = os.path.join(train_config['log_root'],f'model_{model_num}')
+    if not os.path.isdir(log_root):
+        os.mkdir(log_root)
+    log_path, log_dir = init_log(log_root, train_config)
+    print('Experiment: ' + log_dir)
+    print(f'training using {args.n_iterations} iterations')
+    save_path = os.path.join(log_root,f'n_iterations_{args.n_iterations}_{model_num}_results.pkl')
+    #train_config['n_iterations'] = n_iterations
     model = get_model(train_config, arch, train_loader)
     iter_dict = {'elbos':{'train':[],'val':[]},
                  'log_probs':{'train':[],'val':[]},
@@ -68,18 +75,19 @@ for n_iterations in [2,5,10,16]:
     (enc_opt, enc_scheduler), (dec_opt, dec_scheduler), start_epoch = get_optimizers(train_config, arch, model)
 
     elbos_avg,lps_avg,kls_avg = [],[],[]
+    model.train()
     for epoch in range(start_epoch+1,301):
 
         tic = time.time()
-        model.train()
+        #model.train()
         
         epoch_elbo = []
         epoch_lp = []
         epoch_kl = []
         for batch,_ in tqdm(train_loader,total=len(train_loader)):
             if model.output_distribution == 'bernoulli':
-                batch = 255. * torch.bernoulli(batch)
-        # batch_out = train_on_batch(model, batch, train_config['n_iterations'], (enc_opt,dec_opt),  train_config, arch)
+                batch = 255. * batch #  here, we do not sample by pixel intensity to match rest of the models . * torch.bernoulli(batch)
+        
             batch_output = train_on_batch(model, batch, train_config['n_iterations'], (enc_opt,dec_opt),  train_config, arch)
             epoch_elbo.append(batch_output['elbo'])
             epoch_lp.append(batch_output['cond_log_like'])
@@ -88,34 +96,50 @@ for n_iterations in [2,5,10,16]:
         lps_avg.append(np.nanmean(epoch_lp))
         kls_avg.append(np.nanmean(epoch_kl))
         toc = time.time()
-        print(f'Training Time epoch {epoch}: ' + str(toc - tic))
+        print(f'Training Time epoch {epoch}: ' + str(toc - tic),'ELBO: ' + str(elbos_avg[-1]))
+        #print('ELBO: ' + str(averages[0]))
+        
         iter_dict['times'].append(toc-tic)
+        iter_dict['elbos']['train'].append(elbos_avg[-1])
+        iter_dict['log_probs']['train'].append(lps_avg[-1])
+        iter_dict['kls']['train'].append(kls_avg[-1])
+        if epoch % train_config['display_iter'] == train_config['display_iter']-1:
+            save_checkpoint(model, (enc_opt, dec_opt), epoch)
+
+        enc_scheduler.step()
+        dec_scheduler.step()
         # validation
+    val_elbos,val_lps,val_kls = []
+    model.eval()
+    for batch,_ in tqdm(val_loader,total=len(val_loader)):
+        if model.output_distribution == 'bernoulli':
+            batch = 255. * batch # again, not binarizing * torch.bernoulli(batch)
+
+        output_dict = run_on_batch(model, batch, train_config['n_iterations'], train_config, arch, vis=False)
+        total_elbo = output_dict['total_elbo']
+        total_cond_log_like = output_dict['total_cond_log_like'] 
+        total_kl =output_dict['total_kl'] 
+        cond_like = output_dict['cond_like']
+        reconstructions = output_dict['reconstructions']
+        val_elbos.append(total_elbo)
+        val_lps.append(total_cond_log_like)
+        val_kls.append(total_kl)
+
+
+        recons = model.reconstruction.data.reshape(-1,1,28,28)/255.
+        batch = batch/255.
+        #print(batch.shape,recons.shape)
+        fig,axs = plt.subplots(nrows=1,ncols=2,figsize=(12,6))
+        axs[0].imshow(recons[0,0,:,:].detach().cpu().numpy(),cmap='gray')
+        axs[1].imshow(batch[0,0,:,:].detach().cpu().numpy(),cmap='gray')
         tic = time.time()
         visualize = False
         eval = False
-        if epoch % train_config['display_iter'] == train_config['display_iter']-1:
-            save_checkpoint(model, (enc_opt, dec_opt), epoch)
-            visualize = True
-        if epoch % train_config['eval_iter'] == train_config['eval_iter']-1:
-            eval = True
-        model.eval()
-        output_dict = run(model, train_config, arch, val_loader, vis=visualize, eval=eval)
-        average_elbo = np.mean(output_dict['total_elbo'][:, -1], axis=0)
-        average_cond_log_like = np.mean(output_dict['total_cond_log_like'][:, -1], axis=0)
-        average_kl = [0. for _ in range(len(output_dict['total_kl']))]
-        for level in range(len(output_dict['total_kl'])):
-            average_kl[level] = np.mean(output_dict['total_kl'][level][:, -1], axis=0)
-        averages = average_elbo, average_cond_log_like, average_kl
-        toc = time.time()
-        print('Validation Time: ' + str(toc - tic))
-        print('ELBO: ' + str(averages[0]))
-        #save_env()
-        enc_scheduler.step()
-        dec_scheduler.step()
-        iter_dict['elbos']['val'].append(output_dict['total_elbo'][:,-1])
-        iter_dict['log_probs']['val'].append(output_dict['total_cond_log_like'][:,-1])
-        iter_dict['kls']['val'].append(output_dict['total_kl'][0][:,-1])
+        
+        
+    iter_dict['elbos']['val'].append(np.hstack(val_elbos))
+    iter_dict['log_probs']['val'].append(np.hstack(val_lps))
+    iter_dict['kls']['val'].append(np.hstack(val_kls))
 
 
     with open(save_path,'wb') as f:
