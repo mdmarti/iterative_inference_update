@@ -68,7 +68,7 @@ for n_iterations in [1,5,50,100,200,300]:
         model.train()
         train_dict = train(model, train_config, arch, train_loader, epoch+1, (enc_opt, dec_opt))
         iter_dict['elbos']['train'].append(train_dict['avg_elbo'])
-        iter_dict['log_probs']['train'].append(train_dict['avg_cond_like'])
+        iter_dict['log_probs']['train'].append(train_dict['avg_cond_log_like'])
         iter_dict['kls']['train'].append(train_dict['avg_kl'][-1])
         toc = time.time()
         print('Training Time: ' + str(toc - tic))
