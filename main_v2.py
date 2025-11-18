@@ -109,7 +109,7 @@ for model_num in range(args.n_models):
         enc_scheduler.step()
         dec_scheduler.step()
         # validation
-    val_elbos,val_lps,val_kls = []
+    val_elbos,val_lps,val_kls = [],[],[]
     model.eval()
     for batch,_ in tqdm(val_loader,total=len(val_loader)):
         if model.output_distribution == 'bernoulli':
