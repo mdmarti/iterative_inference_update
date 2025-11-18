@@ -51,7 +51,7 @@ else:
 
 # construct model
 
-for n_iterations in [1,5,50,100,200,300]:
+for n_iterations in [2,5,10,16]:
     save_path = os.path.join(args.log_path,f'n_iterations_{n_iterations}_results.pkl')
     train_config['n_iterations'] = n_iterations
     model = get_model(train_config, arch, train_loader)
