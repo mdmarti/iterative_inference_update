@@ -242,7 +242,7 @@ def eval_on_batch(model, batch, n_importance_samples):
             importance_weight = -model.levels[level].kl_divergence().sum(dim=2).mean(dim=1)
             importance_sample_estimate[:, i:i + 1] += importance_weight.data.cpu().numpy().reshape((-1, 1))
         importance_sample_estimate[:, i] = importance_sample_estimate[:, i]
-    return scipy.misc.logsumexp(importance_sample_estimate, axis=1) - np.log(importance_sample_estimate.shape[1])
+    return scipy.special.logsumexp(importance_sample_estimate, axis=1) - np.log(importance_sample_estimate.shape[1])
 
 
 def em_on_batch(model, batch, n_iterations, opt):
