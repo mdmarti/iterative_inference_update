@@ -76,7 +76,7 @@ for model_num in range(args.n_models):
 
     elbos_avg,lps_avg,kls_avg = [],[],[]
     model.train()
-    for epoch in range(start_epoch+1,301):
+    for epoch in range(start_epoch+1,args.n_epochs + 1):
 
         tic = time.time()
         #model.train()
