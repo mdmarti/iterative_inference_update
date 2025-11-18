@@ -52,12 +52,14 @@ else:
 # construct model
 train_config['n_samples']=1
 for n_iterations in [2,5,10,16]:
+    print('training using {n_iterations} iterations')
     save_path = os.path.join(args.log_path,f'n_iterations_{n_iterations}_results.pkl')
     train_config['n_iterations'] = n_iterations
     model = get_model(train_config, arch, train_loader)
     iter_dict = {'elbos':{'train':[],'val':[]},
                  'log_probs':{'train':[],'val':[]},
-                 'kls':{'train':[],'val':[]}}
+                 'kls':{'train':[],'val':[]},
+                 'times':[]}
     # get optimizers
     (enc_opt, enc_scheduler), (dec_opt, dec_scheduler), start_epoch = get_optimizers(train_config, arch, model)
 
@@ -71,7 +73,8 @@ for n_iterations in [2,5,10,16]:
         iter_dict['log_probs']['train'].append(train_dict['avg_cond_log_like'])
         iter_dict['kls']['train'].append(train_dict['avg_kl'][-1])
         toc = time.time()
-        print('Training Time: ' + str(toc - tic))
+        print(f'Training Time epoch {epoch}: ' + str(toc - tic))
+        iter_dict['times'].append(toc-tic)
         # validation
         tic = time.time()
         visualize = False
@@ -98,6 +101,7 @@ for n_iterations in [2,5,10,16]:
         iter_dict['elbos']['val'].append(output_dict['total_elbo'][:,-1])
         iter_dict['log_probs']['val'].append(output_dict['total_cond_log_like'][:,-1])
         iter_dict['kls']['val'].append(output_dict['total_kl'][0][:,-1])
+
 
     with open(save_path,'wb') as f:
         pickle.dump(iter_dict,f)
