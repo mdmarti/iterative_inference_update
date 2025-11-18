@@ -111,7 +111,7 @@ for model_num in range(args.n_models):
         # validation
     val_elbos,val_lps,val_kls = [],[],[]
     model.eval()
-    for batch,_ in tqdm(val_loader,total=len(val_loader)):
+    for ii,(batch,_) in tqdm(enumerate(val_loader),total=len(val_loader)):
         if model.output_distribution == 'bernoulli':
             batch = 255. * batch # again, not binarizing * torch.bernoulli(batch)
 
@@ -125,6 +125,7 @@ for model_num in range(args.n_models):
         val_lps.append(total_cond_log_like)
         val_kls.append(total_kl)
 
+        choice = np.random.choice(len(batch),1).squeeze()
 
         recons = model.reconstruction.data.reshape(-1,1,28,28)/255.
         batch = batch/255.
@@ -132,11 +133,13 @@ for model_num in range(args.n_models):
         fig,axs = plt.subplots(nrows=1,ncols=2,figsize=(12,6))
         axs[0].imshow(recons[0,0,:,:].detach().cpu().numpy(),cmap='gray')
         axs[1].imshow(batch[0,0,:,:].detach().cpu().numpy(),cmap='gray')
-        tic = time.time()
+        plt.savefig(os.path.join(log_root,f'val_batch_{ii}_reconstructions.png'),transparent=True)
+        plt.close()
+       
         visualize = False
         eval = False
         
-        
+    print(f"Final val elbo: {np.nanmean(np.hstack(val_elbos))}+- {np.nanstd(np.hstack(val_elbos))}")
     iter_dict['elbos']['val'].append(np.hstack(val_elbos))
     iter_dict['log_probs']['val'].append(np.hstack(val_lps))
     iter_dict['kls']['val'].append(np.hstack(val_kls))
