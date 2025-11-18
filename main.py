@@ -50,7 +50,7 @@ else:
                                                     cuda_device=train_config['cuda_device'])
 
 # construct model
-
+train_config['n_samples']=1
 for n_iterations in [2,5,10,16]:
     save_path = os.path.join(args.log_path,f'n_iterations_{n_iterations}_results.pkl')
     train_config['n_iterations'] = n_iterations
