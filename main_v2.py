@@ -140,7 +140,7 @@ for model_num in range(args.n_models):
         eval = False
         
     print(f"Final val elbo: {np.nanmean(np.hstack(val_elbos))}+- {np.nanstd(np.hstack(val_elbos))}")
-    iter_dict['elbos']['val'].append(np.hstack(val_elbos))
+    iter_dict['elbos']['val'].append(np.stack(val_elbos,axis=0))
     iter_dict['log_probs']['val'].append(np.hstack(val_lps))
     iter_dict['kls']['val'].append(np.hstack(val_kls))
 
